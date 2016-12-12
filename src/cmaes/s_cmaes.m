@@ -592,7 +592,9 @@ else % flgresume
   if flgDiagonalOnly ~= 1            % use at some point full covariance matrix
     B = eye(N,N);                      % B defines the coordinate system
     BD = B.*repmat(diagD',N,1);        % B*D for speed up only
-    C = diag(diagC);                   % covariance matrix == BD*(BD)'
+    C = eye(N,N);%C = diag(diagC);                   
+% covariance matrix == BD*(BD)'Changed
+
   end
   if flgDiagonalOnly
     B = 1; 
@@ -1232,6 +1234,7 @@ while isempty(stopflag)
         % is now O(mu*N^2 + mu*N), was O(mu*N^2 + mu^2*N) when using diag(weights)
         %   for mu=30*N it is now 10 times faster, overall 3 times faster
       end
+      C = eye(N,N);
       diagC = diag(C);
     end
   end
@@ -1309,6 +1312,7 @@ while isempty(stopflag)
 	  diagD(diagD<0) = 0;
 	  tmp = max(diagD)/1e14;
 	  C = C + tmp*eye(N,N); diagD = diagD + tmp*ones(N,1); 
+	  C = eye(N,N);
 	end
     end
     if max(diagD) > 1e14*min(diagD) 
@@ -1318,7 +1322,8 @@ while isempty(stopflag)
 	  warning(['Iteration ' num2str(countiter) ': condition of C ' ...
 		   'at upper limit' ]);
 	  tmp = max(diagD)/1e14 - min(diagD);
-	  C = C + tmp*eye(N,N); diagD = diagD + tmp*ones(N,1); 
+	  C = C + tmp*eye(N,N); diagD = diagD + tmp*ones(N,1);
+	  C = eye(N,N); 
 	end
     end
 
@@ -1338,6 +1343,7 @@ while isempty(stopflag)
     diagD = fac * diagD; 
     if ~flgDiagonalOnly
       C = fac^2 * C; % disp(fac);
+      C = eye(N,N);
       BD = B .* repmat(diagD',N,1); % O(n^2), but repmat might be inefficient todo?
     end
     diagC = fac^2 * diagC; 
@@ -1348,7 +1354,8 @@ while isempty(stopflag)
     flgDiagonalOnly = 0; 
     B = eye(N,N);
     BD = diag(diagD);
-    C = diag(diagC); % is better, because correlations are spurious anyway
+    %C = diag(diagC); % is better, because correlations are spurious anyway
+    C = eye(N,N);
   end
 
   if noiseHandling 
@@ -1420,6 +1427,7 @@ while isempty(stopflag)
       else
         C = C + (ccov1+ccovmu) * diag(diagC .* ...
                                       (xmean == xmean + 0.2*sigma*sqrt(diagC)));
+	C = eye(N,N);
       end
       sigma = sigma * exp(0.05+cs/damps); 
     end
