@@ -782,7 +782,6 @@ while isempty(stopflag)
     end
     if noiseHandling
       noiseReevals = min(myeval(opts.Noise.reevals), lambda); 
-      noiseReevals = 0; % more convenient in later coding
     else
       noiseReevals = 0; % more convenient in later coding
     end
@@ -904,8 +903,7 @@ while isempty(stopflag)
       ccov1 = 0;
       ccovmu = 0;
     end
-    ccov1=0;
-  ccovmu=0;
+    
     % flgDiagonalOnly = -lambda*4*1/ccov; % for ccov==1 it is not needed
     % 0 : C will never be diagonal anymore
     % 1 : C will always be diagonal
