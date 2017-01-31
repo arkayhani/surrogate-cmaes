@@ -4,10 +4,10 @@ exp_description = 'Surrogate CMA-ES model, GP and RF + y-normalization, generati
 % BBOB/COCO framework settings
 
 bbobParams = { ...
-  'dimensions',         { 2, 3, 5, 10 }, ...
-  'functions',          num2cell(1:24), ...      % all functions: num2cell(1:24)
+  'dimensions',         { 10,20}, ...
+  'functions',          num2cell(101:101), ...      % all functions: num2cell(1:24)
   'opt_function',       { @opt_s_cmaes }, ...
-  'instances',          { [1:5, 41:50] }, ...    % default is [1:5, 41:50]
+  'instances',          { [1:5] }, ...    % default is [1:5, 41:50]
   'maxfunevals',        { '250 * dim' }
 };
 
@@ -15,15 +15,15 @@ bbobParams = { ...
 
 surrogateParams = { ...
   'evoControl',         { 'generation' }, ...    % 'none', 'individual', 'generation', 'restricted'
-  'modelType',          { 'gp', 'rf' }, ...               % 'gp', 'rf', 'bbob'
+  'modelType',          { 'gp'}, ...               % 'gp', 'rf', 'bbob'
   'evoControlPreSampleSize', { 0 }, ...             % {0.25, 0.5, 0.75}, will be multip. by lambda
   'evoControlIndividualExtension', { [] }, ...      % will be multip. by lambda
   'evoControlBestFromExtension', { [] }, ...        % ratio of expanded popul.
-  'evoControlTrainRange', { 10 }, ...               % will be multip. by sigma
+  'evoControlTrainRange', { 10,0 }, ...               % will be multip. by sigma
   'evoControlTrainNArchivePoints', { '15*dim' },... % will be myeval()'ed, 'nRequired', 'nEvaluated', 'lambda', 'dim' can be used
   'evoControlSampleRange', { 1 }, ...               % will be multip. by sigma
   'evoControlOrigGenerations', { 1 }, ...
-  'evoControlModelGenerations', { 1, 5 }
+  'evoControlModelGenerations', { 1}
 };
 
 % Model parameters
@@ -43,7 +43,7 @@ modelParams = { ...
 
 cmaesParams = { ...
   'PopSize',            { '(4 + floor(3*log(N)))' }, ...        %, '(8 + floor(6*log(N)))'};
-  'Restarts',           { 4 }, ...
+  'Restarts',           { 1 }, ...
 };
 
 logDir = '/storage/plzen1/home/bajeluk/public';
