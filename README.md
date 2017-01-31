@@ -1,9 +1,13 @@
 Surrogate ES
 ================
 S-ES is a modified verion of S-CMA-ES.
+
 Modifications:
-1.ّFunctions 101 to 128 are modified to changed to sphere functions with guassian additive noise(noise variance changes from 0 to 10 over Dimension)
+
+1.ّFunctions 101 to 128 are all modified to sphere functions with guassian additive noise(noise variance changes from 0 to 10 over Dimension)
+
 2.CMA.ON= false,the covariance matrix addaption algorithm is removed.
+
 3.Restarts in GP_Generation_10 is set to 1.
 
 
