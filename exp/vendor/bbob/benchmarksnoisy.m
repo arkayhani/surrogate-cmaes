@@ -43,6 +43,7 @@
 function [res, res2] = benchmarksnoisy(x, strfun, DIM) 
 %
   Nfcts = 30;
+ 
 
   % return valid function IDs (ie numbers)
   if nargin < 1 || ( ...
@@ -122,6 +123,7 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%% NOISY FUNCTIONS %%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %%%-------------------------------------------------------------%%%
+%%%-------------------------------------------------------------%%%
 function [Fval, Ftrue] = f101(x, DIM, ntrial)
 % sphere with moderate Gauss noise
 % last change: 09/01/03
@@ -180,10 +182,10 @@ function [Fval, Ftrue] = f101(x, DIM, ntrial)
   x = x - arrXopt;  % shift optimum to zero 
 
   %----- COMPUTATION core -----
-  Ftrue = sum(x.^2, 1);
+  Ftrue = sum((x-1).^2, 1);
 
   %----- NOISE -----
-  Fval = FGauss(Ftrue, 0.01); 
+  Fval = 1; 
 
   %----- FINALIZE -----
   Ftrue = Ftrue + Fadd;
@@ -209,7 +211,7 @@ end % function
 
 %%%-------------------------------------------------------------%%%
 function [Fval, Ftrue] = f102(x, DIM, ntrial)
-% sphere with moderate uniform noise
+% sphere with moderate Gauss noise
 % last change: 09/01/03
   persistent Fopt Xopt scales linearTF rotation
   persistent lastSize arrXopt arrScales arrExpo rseed
@@ -266,10 +268,10 @@ function [Fval, Ftrue] = f102(x, DIM, ntrial)
   x = x - arrXopt;  % shift optimum to zero 
 
   %----- COMPUTATION core -----
-  Ftrue = sum(x.^2, 1);
+  Ftrue = sum((x-1).^2, 1);
 
   %----- NOISE -----
-  Fval = FUniform(Ftrue, 0.01 * (0.49 + 1/DIM), 0.01); 
+  Fval = FGauss(Ftrue, 0.3/DIM); 
 
   %----- FINALIZE -----
   Ftrue = Ftrue + Fadd;
@@ -293,9 +295,10 @@ function [Fval, Ftrue] = f102(x, DIM, ntrial)
 
 end % function
 
-%%%-------------------------------------------------------------%%%
+
+
 function [Fval, Ftrue] = f103(x, DIM, ntrial)
-% sphere with moderate Cauchy noise
+% sphere with moderate Gauss noise
 % last change: 09/01/03
   persistent Fopt Xopt scales linearTF rotation
   persistent lastSize arrXopt arrScales arrExpo rseed
@@ -352,10 +355,10 @@ function [Fval, Ftrue] = f103(x, DIM, ntrial)
   x = x - arrXopt;  % shift optimum to zero 
 
   %----- COMPUTATION core -----
-  Ftrue = sum(x.^2, 1);
+  Ftrue = sum((x-1).^2, 1);
 
   %----- NOISE -----
-  Fval = FCauchy(Ftrue, 0.01, 0.05); 
+  Fval = FGauss(Ftrue, 0.6/DIM); 
 
   %----- FINALIZE -----
   Ftrue = Ftrue + Fadd;
@@ -378,16 +381,15 @@ function [Fval, Ftrue] = f103(x, DIM, ntrial)
   end
 
 end % function
-
 %%%-------------------------------------------------------------%%%
 function [Fval, Ftrue] = f104(x, DIM, ntrial)
-% Rosenbrock non-rotated with moderate Gauss noise
+% sphere with moderate Gauss noise
 % last change: 09/01/03
   persistent Fopt Xopt scales linearTF rotation
   persistent lastSize arrXopt arrScales arrExpo rseed
 
   funcID = 104; 
-  rrseed = 8; 
+  rrseed = 1; 
   
   %----- CHECK INPUT -----
   if ischar(x) % return Fopt Xopt or linearTF on string argument
@@ -420,8 +422,7 @@ function [Fval, Ftrue] = f104(x, DIM, ntrial)
   Fadd = Fopt;  % value to be added on the "raw" function value
   % DIM-dependent initialization
   if isempty(lastSize) || lastSize.DIM ~= DIM  
-    Xopt =1* 0.75 * computeXopt(rseed, DIM); 
-    scales = max(1, sqrt(DIM) / 8.); 
+    Xopt =1* computeXopt(rseed, DIM); % function ID is seed for rotation 
   end
   % DIM- and POPSI-dependent initializations of DIMxPOPSI matrices
   if isempty(lastSize) || lastSize.DIM ~= DIM || lastSize.POPSI ~= POPSI
@@ -437,15 +438,12 @@ function [Fval, Ftrue] = f104(x, DIM, ntrial)
 
   %----- TRANSFORMATION IN SEARCH SPACE -----
   x = x - arrXopt;  % shift optimum to zero 
-  x = scales * x;  % rotate/scale while assuming that Xopt==0 
-  x = x + 1;  % shift zero to factual optimum 1
 
   %----- COMPUTATION core -----
-  Ftrue = 1e2 * sum((x(1:end-1, :).^2 - x(2:end, :)).^2, 1) ...
-          + sum((x(1:end-1, :) - 1).^2, 1);
+  Ftrue = sum((x-1).^2, 1);
 
   %----- NOISE -----
-  Fval = FGauss(Ftrue, 0.01); 
+  Fval = FGauss(Ftrue, 0.9/DIM); 
 
   %----- FINALIZE -----
   Ftrue = Ftrue + Fadd;
@@ -468,16 +466,15 @@ function [Fval, Ftrue] = f104(x, DIM, ntrial)
   end
 
 end % function
-
 %%%-------------------------------------------------------------%%%
 function [Fval, Ftrue] = f105(x, DIM, ntrial)
-% Rosenbrock non-rotated with moderate uniform noise
+% sphere with moderate Gauss noise
 % last change: 09/01/03
   persistent Fopt Xopt scales linearTF rotation
   persistent lastSize arrXopt arrScales arrExpo rseed
 
   funcID = 105; 
-  rrseed = 8; 
+  rrseed = 1; 
   
   %----- CHECK INPUT -----
   if ischar(x) % return Fopt Xopt or linearTF on string argument
@@ -510,8 +507,7 @@ function [Fval, Ftrue] = f105(x, DIM, ntrial)
   Fadd = Fopt;  % value to be added on the "raw" function value
   % DIM-dependent initialization
   if isempty(lastSize) || lastSize.DIM ~= DIM  
-    Xopt =1* 0.75 * computeXopt(rseed, DIM); 
-    scales = max(1, sqrt(DIM) / 8.); 
+    Xopt =1* computeXopt(rseed, DIM); % function ID is seed for rotation 
   end
   % DIM- and POPSI-dependent initializations of DIMxPOPSI matrices
   if isempty(lastSize) || lastSize.DIM ~= DIM || lastSize.POPSI ~= POPSI
@@ -527,15 +523,12 @@ function [Fval, Ftrue] = f105(x, DIM, ntrial)
 
   %----- TRANSFORMATION IN SEARCH SPACE -----
   x = x - arrXopt;  % shift optimum to zero 
-  x = scales * x;  % rotate/scale while assuming that Xopt==0 
-  x = x + 1;  % shift zero to factual optimum 1
 
   %----- COMPUTATION core -----
-  Ftrue = 1e2 * sum((x(1:end-1, :).^2 - x(2:end, :)).^2, 1) ...
-          + sum((x(1:end-1, :) - 1).^2, 1);
+  Ftrue = sum((x-1).^2, 1);
 
   %----- NOISE -----
-  Fval = FUniform(Ftrue, 0.01 * (0.49 + 1/DIM), 0.01); 
+  Fval = FGauss(Ftrue,1.2/DIM); 
 
   %----- FINALIZE -----
   Ftrue = Ftrue + Fadd;
@@ -558,16 +551,15 @@ function [Fval, Ftrue] = f105(x, DIM, ntrial)
   end
 
 end % function
-
 %%%-------------------------------------------------------------%%%
 function [Fval, Ftrue] = f106(x, DIM, ntrial)
-% Rosenbrock non-rotated with moderate Cauchy noise
+% sphere with moderate Gauss noise
 % last change: 09/01/03
   persistent Fopt Xopt scales linearTF rotation
   persistent lastSize arrXopt arrScales arrExpo rseed
 
   funcID = 106; 
-  rrseed = 8; 
+  rrseed = 1; 
   
   %----- CHECK INPUT -----
   if ischar(x) % return Fopt Xopt or linearTF on string argument
@@ -600,8 +592,7 @@ function [Fval, Ftrue] = f106(x, DIM, ntrial)
   Fadd = Fopt;  % value to be added on the "raw" function value
   % DIM-dependent initialization
   if isempty(lastSize) || lastSize.DIM ~= DIM  
-    Xopt =1* 0.75 * computeXopt(rseed, DIM); 
-    scales = max(1, sqrt(DIM) / 8.); 
+    Xopt =1* computeXopt(rseed, DIM); % function ID is seed for rotation 
   end
   % DIM- and POPSI-dependent initializations of DIMxPOPSI matrices
   if isempty(lastSize) || lastSize.DIM ~= DIM || lastSize.POPSI ~= POPSI
@@ -617,15 +608,12 @@ function [Fval, Ftrue] = f106(x, DIM, ntrial)
 
   %----- TRANSFORMATION IN SEARCH SPACE -----
   x = x - arrXopt;  % shift optimum to zero 
-  x = scales * x;  % rotate/scale while assuming that Xopt==0 
-  x = x + 1;  % shift zero to factual optimum 1
 
   %----- COMPUTATION core -----
-  Ftrue = 1e2 * sum((x(1:end-1, :).^2 - x(2:end, :)).^2, 1) ...
-          + sum((x(1:end-1, :) - 1).^2, 1);
+  Ftrue = sum((x-1).^2, 1);
 
   %----- NOISE -----
-  Fval = FCauchy(Ftrue, 0.01, 0.05); 
+  Fval = FGauss(Ftrue,1.5/DIM); 
 
   %----- FINALIZE -----
   Ftrue = Ftrue + Fadd;
@@ -649,13 +637,12 @@ function [Fval, Ftrue] = f106(x, DIM, ntrial)
 
 end % function
 
-
 %%%-------------------------------------------------------------%%%
 function [Fval, Ftrue] = f107(x, DIM, ntrial)
-% sphere with  Gauss noise
+% sphere with moderate Gauss noise
 % last change: 09/01/03
   persistent Fopt Xopt scales linearTF rotation
-  persistent lastSize arrXopt arrScales arrExpo rseed 
+  persistent lastSize arrXopt arrScales arrExpo rseed
 
   funcID = 107; 
   rrseed = 1; 
@@ -709,10 +696,10 @@ function [Fval, Ftrue] = f107(x, DIM, ntrial)
   x = x - arrXopt;  % shift optimum to zero 
 
   %----- COMPUTATION core -----
-  Ftrue = sum(x.^2, 1);
+  Ftrue = sum((x-1).^2, 1);
 
   %----- NOISE -----
-  Fval = FGauss(Ftrue, 1); 
+  Fval = FGauss(Ftrue,1.8/DIM); 
 
   %----- FINALIZE -----
   Ftrue = Ftrue + Fadd;
@@ -735,13 +722,12 @@ function [Fval, Ftrue] = f107(x, DIM, ntrial)
   end
 
 end % function
-
 %%%-------------------------------------------------------------%%%
 function [Fval, Ftrue] = f108(x, DIM, ntrial)
-% sphere with uniform noise
+% sphere with moderate Gauss noise
 % last change: 09/01/03
   persistent Fopt Xopt scales linearTF rotation
-  persistent lastSize arrXopt arrScales arrExpo rseed 
+  persistent lastSize arrXopt arrScales arrExpo rseed
 
   funcID = 108; 
   rrseed = 1; 
@@ -795,10 +781,10 @@ function [Fval, Ftrue] = f108(x, DIM, ntrial)
   x = x - arrXopt;  % shift optimum to zero 
 
   %----- COMPUTATION core -----
-  Ftrue = sum(x.^2, 1);
+  Ftrue = sum((x-1).^2, 1);
 
   %----- NOISE -----
-  Fval = FUniform(Ftrue, 0.49 + 1/DIM, 1); 
+  Fval = FGauss(Ftrue,2.1/DIM); 
 
   %----- FINALIZE -----
   Ftrue = Ftrue + Fadd;
@@ -821,15 +807,269 @@ function [Fval, Ftrue] = f108(x, DIM, ntrial)
   end
 
 end % function
-
 %%%-------------------------------------------------------------%%%
 function [Fval, Ftrue] = f109(x, DIM, ntrial)
-% sphere with Cauchy noise
+% sphere with moderate Gauss noise
 % last change: 09/01/03
   persistent Fopt Xopt scales linearTF rotation
-  persistent lastSize arrXopt arrScales arrExpo rseed 
+  persistent lastSize arrXopt arrScales arrExpo rseed
 
   funcID = 109; 
+  rrseed = 1; 
+  
+  %----- CHECK INPUT -----
+  if ischar(x) % return Fopt Xopt or linearTF on string argument
+    flginputischar = 1;
+    strinput = x;
+    if nargin < 2 || isempty(DIM)
+      DIM = 2;
+    end
+    x = ones(DIM,1);  % setting all persistent variables
+  else
+    flginputischar = 0;
+  end
+  % from here on x is assumed a numeric variable
+  [DIM, POPSI] = size(x);  % dimension, pop-size (number of solution vectors)
+  if DIM == 1 
+    error('1-D input is not supported');
+  end
+  
+  %----- INITIALIZATION -----
+  if nargin > 2     % set seed depending on trial index
+    Fopt = [];      % clear previous settings for Fopt
+    lastSize = [];  % clear other previous settings
+    rseed = rrseed + 1e4 * ntrial; 
+  elseif isempty(rseed)
+    rseed = rrseed; 
+  end
+  if isempty(Fopt)
+    Fopt =1* min(1000, max(-1000, round(100*100*gauss(1,rseed)/gauss(1,rseed+1))/100));
+  end 
+  Fadd = Fopt;  % value to be added on the "raw" function value
+  % DIM-dependent initialization
+  if isempty(lastSize) || lastSize.DIM ~= DIM  
+    Xopt =1* computeXopt(rseed, DIM); % function ID is seed for rotation 
+  end
+  % DIM- and POPSI-dependent initializations of DIMxPOPSI matrices
+  if isempty(lastSize) || lastSize.DIM ~= DIM || lastSize.POPSI ~= POPSI
+    lastSize.POPSI = POPSI; 
+    lastSize.DIM = DIM; 
+    arrXopt = repmat(Xopt, 1, POPSI); 
+  end
+
+  %----- BOUNDARY HANDLING -----
+  xoutside = max(0, abs(x) - 5) .* sign(x); 
+  Fpen = 100 * sum(xoutside.^2, 1);  % penalty
+  Fadd = Fadd + Fpen; 
+
+  %----- TRANSFORMATION IN SEARCH SPACE -----
+  x = x - arrXopt;  % shift optimum to zero 
+
+  %----- COMPUTATION core -----
+  Ftrue = sum((x-1).^2, 1);
+
+  %----- NOISE -----
+  Fval = FGauss(Ftrue,2.4/DIM); 
+
+  %----- FINALIZE -----
+  Ftrue = Ftrue + Fadd;
+  Fval = Fval + Fadd;
+
+  %----- RETURN INFO ----- 
+  if flginputischar  
+    if strcmpi(strinput, 'xopt')
+      Fval = Fopt;
+      Ftrue = Xopt;
+    elseif strcmpi(strinput, 'linearTF')
+      Fval = Fopt;
+      Ftrue = {};
+      Ftrue{1} = linearTF; 
+      Ftrue{2} = rotation; 
+    else  % if strcmpi(strinput, 'info')
+      Ftrue = [];  % benchmarkinfos(funcID); 
+      Fval = Fopt;
+    end
+  end
+
+end % function
+%%%-------------------------------------------------------------%%%
+function [Fval, Ftrue] = f110(x, DIM, ntrial)
+% sphere with moderate Gauss noise
+% last change: 09/01/03
+  persistent Fopt Xopt scales linearTF rotation
+  persistent lastSize arrXopt arrScales arrExpo rseed
+
+  funcID = 110; 
+  rrseed = 1; 
+  
+  %----- CHECK INPUT -----
+  if ischar(x) % return Fopt Xopt or linearTF on string argument
+    flginputischar = 1;
+    strinput = x;
+    if nargin < 2 || isempty(DIM)
+      DIM = 2;
+    end
+    x = ones(DIM,1);  % setting all persistent variables
+  else
+    flginputischar = 0;
+  end
+  % from here on x is assumed a numeric variable
+  [DIM, POPSI] = size(x);  % dimension, pop-size (number of solution vectors)
+  if DIM == 1 
+    error('1-D input is not supported');
+  end
+  
+  %----- INITIALIZATION -----
+  if nargin > 2     % set seed depending on trial index
+    Fopt = [];      % clear previous settings for Fopt
+    lastSize = [];  % clear other previous settings
+    rseed = rrseed + 1e4 * ntrial; 
+  elseif isempty(rseed)
+    rseed = rrseed; 
+  end
+  if isempty(Fopt)
+    Fopt =1* min(1000, max(-1000, round(100*100*gauss(1,rseed)/gauss(1,rseed+1))/100));
+  end 
+  Fadd = Fopt;  % value to be added on the "raw" function value
+  % DIM-dependent initialization
+  if isempty(lastSize) || lastSize.DIM ~= DIM  
+    Xopt =1* computeXopt(rseed, DIM); % function ID is seed for rotation 
+  end
+  % DIM- and POPSI-dependent initializations of DIMxPOPSI matrices
+  if isempty(lastSize) || lastSize.DIM ~= DIM || lastSize.POPSI ~= POPSI
+    lastSize.POPSI = POPSI; 
+    lastSize.DIM = DIM; 
+    arrXopt = repmat(Xopt, 1, POPSI); 
+  end
+
+  %----- BOUNDARY HANDLING -----
+  xoutside = max(0, abs(x) - 5) .* sign(x); 
+  Fpen = 100 * sum(xoutside.^2, 1);  % penalty
+  Fadd = Fadd + Fpen; 
+
+  %----- TRANSFORMATION IN SEARCH SPACE -----
+  x = x - arrXopt;  % shift optimum to zero 
+
+  %----- COMPUTATION core -----
+  Ftrue = sum((x-1).^2, 1);
+
+  %----- NOISE -----
+  Fval = FGauss(Ftrue,2.7/DIM); 
+
+  %----- FINALIZE -----
+  Ftrue = Ftrue + Fadd;
+  Fval = Fval + Fadd;
+
+  %----- RETURN INFO ----- 
+  if flginputischar  
+    if strcmpi(strinput, 'xopt')
+      Fval = Fopt;
+      Ftrue = Xopt;
+    elseif strcmpi(strinput, 'linearTF')
+      Fval = Fopt;
+      Ftrue = {};
+      Ftrue{1} = linearTF; 
+      Ftrue{2} = rotation; 
+    else  % if strcmpi(strinput, 'info')
+      Ftrue = [];  % benchmarkinfos(funcID); 
+      Fval = Fopt;
+    end
+  end
+
+end % function
+%%%-------------------------------------------------------------%%%
+function [Fval, Ftrue] = f111(x, DIM, ntrial)
+% sphere with moderate Gauss noise
+% last change: 09/01/03
+  persistent Fopt Xopt scales linearTF rotation
+  persistent lastSize arrXopt arrScales arrExpo rseed
+
+  funcID = 111; 
+  rrseed = 1; 
+  
+  %----- CHECK INPUT -----
+  if ischar(x) % return Fopt Xopt or linearTF on string argument
+    flginputischar = 1;
+    strinput = x;
+    if nargin < 2 || isempty(DIM)
+      DIM = 2;
+    end
+    x = ones(DIM,1);  % setting all persistent variables
+  else
+    flginputischar = 0;
+  end
+  % from here on x is assumed a numeric variable
+  [DIM, POPSI] = size(x);  % dimension, pop-size (number of solution vectors)
+  if DIM == 1 
+    error('1-D input is not supported');
+  end
+  
+  %----- INITIALIZATION -----
+  if nargin > 2     % set seed depending on trial index
+    Fopt = [];      % clear previous settings for Fopt
+    lastSize = [];  % clear other previous settings
+    rseed = rrseed + 1e4 * ntrial; 
+  elseif isempty(rseed)
+    rseed = rrseed; 
+  end
+  if isempty(Fopt)
+    Fopt =1* min(1000, max(-1000, round(100*100*gauss(1,rseed)/gauss(1,rseed+1))/100));
+  end 
+  Fadd = Fopt;  % value to be added on the "raw" function value
+  % DIM-dependent initialization
+  if isempty(lastSize) || lastSize.DIM ~= DIM  
+    Xopt =1* computeXopt(rseed, DIM); % function ID is seed for rotation 
+  end
+  % DIM- and POPSI-dependent initializations of DIMxPOPSI matrices
+  if isempty(lastSize) || lastSize.DIM ~= DIM || lastSize.POPSI ~= POPSI
+    lastSize.POPSI = POPSI; 
+    lastSize.DIM = DIM; 
+    arrXopt = repmat(Xopt, 1, POPSI); 
+  end
+
+  %----- BOUNDARY HANDLING -----
+  xoutside = max(0, abs(x) - 5) .* sign(x); 
+  Fpen = 100 * sum(xoutside.^2, 1);  % penalty
+  Fadd = Fadd + Fpen; 
+
+  %----- TRANSFORMATION IN SEARCH SPACE -----
+  x = x - arrXopt;  % shift optimum to zero 
+
+  %----- COMPUTATION core -----
+  Ftrue = sum((x-1).^2, 1);
+
+  %----- NOISE -----
+  Fval = FGauss(Ftrue,3/DIM); 
+
+  %----- FINALIZE -----
+  Ftrue = Ftrue + Fadd;
+  Fval = Fval + Fadd;
+
+  %----- RETURN INFO ----- 
+  if flginputischar  
+    if strcmpi(strinput, 'xopt')
+      Fval = Fopt;
+      Ftrue = Xopt;
+    elseif strcmpi(strinput, 'linearTF')
+      Fval = Fopt;
+      Ftrue = {};
+      Ftrue{1} = linearTF; 
+      Ftrue{2} = rotation; 
+    else  % if strcmpi(strinput, 'info')
+      Ftrue = [];  % benchmarkinfos(funcID); 
+      Fval = Fopt;
+    end
+  end
+
+end % function
+%%%-------------------------------------------------------------%%%
+function [Fval, Ftrue] = f112(x, DIM, ntrial)
+% sphere with moderate uniform noise
+% last change: 09/01/03
+  persistent Fopt Xopt scales linearTF rotation
+  persistent lastSize arrXopt arrScales arrExpo rseed
+
+  funcID = 112; 
   rrseed = 1; 
   
   %----- CHECK INPUT -----
@@ -884,7 +1124,7 @@ function [Fval, Ftrue] = f109(x, DIM, ntrial)
   Ftrue = sum(x.^2, 1);
 
   %----- NOISE -----
-  Fval = FCauchy(Ftrue, 1, 0.2); 
+  Fval = FUniform(Ftrue, 0.5 * (0 + 1/DIM), 0.01); 
 
   %----- FINALIZE -----
   Ftrue = Ftrue + Fadd;
@@ -907,288 +1147,15 @@ function [Fval, Ftrue] = f109(x, DIM, ntrial)
   end
 
 end % function
-
-%%%-------------------------------------------------------------%%%
-function [Fval, Ftrue] = f110(x, DIM, ntrial)
-% Rosenbrock non-rotated with Gauss noise
-% last change: 09/01/03
-  persistent Fopt Xopt scales linearTF rotation
-  persistent lastSize arrXopt arrScales arrExpo rseed 
-
-  funcID = 110; 
-  rrseed = 8; 
-  
-  %----- CHECK INPUT -----
-  if ischar(x) % return Fopt Xopt or linearTF on string argument
-    flginputischar = 1;
-    strinput = x;
-    if nargin < 2 || isempty(DIM)
-      DIM = 2;
-    end
-    x = ones(DIM,1);  % setting all persistent variables
-  else
-    flginputischar = 0;
-  end
-  % from here on x is assumed a numeric variable
-  [DIM, POPSI] = size(x);  % dimension, pop-size (number of solution vectors)
-  if DIM == 1 
-    error('1-D input is not supported');
-  end
-  
-  %----- INITIALIZATION -----
-  if nargin > 2     % set seed depending on trial index
-    Fopt = [];      % clear previous settings for Fopt
-    lastSize = [];  % clear other previous settings
-    rseed = rrseed + 1e4 * ntrial; 
-  elseif isempty(rseed)
-    rseed = rrseed; 
-  end
-  if isempty(Fopt)
-    Fopt =1* min(1000, max(-1000, round(100*100*gauss(1,rseed)/gauss(1,rseed+1))/100));
-  end 
-  Fadd = Fopt;  % value to be added on the "raw" function value
-  % DIM-dependent initialization
-  if isempty(lastSize) || lastSize.DIM ~= DIM  
-    Xopt =1* 0.75 * computeXopt(rseed, DIM); 
-    scales = max(1, sqrt(DIM) / 8.); 
-  end
-  % DIM- and POPSI-dependent initializations of DIMxPOPSI matrices
-  if isempty(lastSize) || lastSize.DIM ~= DIM || lastSize.POPSI ~= POPSI
-    lastSize.POPSI = POPSI; 
-    lastSize.DIM = DIM; 
-    arrXopt = repmat(Xopt, 1, POPSI); 
-  end
-
-  %----- BOUNDARY HANDLING -----
-  xoutside = max(0, abs(x) - 5) .* sign(x); 
-  Fpen = 100 * sum(xoutside.^2, 1);  % penalty
-  Fadd = Fadd + Fpen; 
-
-  %----- TRANSFORMATION IN SEARCH SPACE -----
-  x = x - arrXopt;  % shift optimum to zero 
-  x = scales * x;  % rotate/scale while assuming that Xopt==0 
-  x = x + 1;  % shift zero to factual optimum 1
-
-  %----- COMPUTATION core -----
-  Ftrue = 1e2 * sum((x(1:end-1, :).^2 - x(2:end, :)).^2, 1) ...
-          + sum((x(1:end-1, :) - 1).^2, 1);
-
-  %----- NOISE -----
-  Fval = FGauss(Ftrue, 1); 
-
-  %----- FINALIZE -----
-  Ftrue = Ftrue + Fadd;
-  Fval = Fval + Fadd;
-
-  %----- RETURN INFO ----- 
-  if flginputischar  
-    if strcmpi(strinput, 'xopt')
-      Fval = Fopt;
-      Ftrue = Xopt;
-    elseif strcmpi(strinput, 'linearTF')
-      Fval = Fopt;
-      Ftrue = {};
-      Ftrue{1} = linearTF; 
-      Ftrue{2} = rotation; 
-    else  % if strcmpi(strinput, 'info')
-      Ftrue = [];  % benchmarkinfos(funcID); 
-      Fval = Fopt;
-    end
-  end
-
-end % function
-
-%%%-------------------------------------------------------------%%%
-function [Fval, Ftrue] = f111(x, DIM, ntrial)
-% Rosenbrock non-rotated with uniform noise
-% last change: 09/01/03
-  persistent Fopt Xopt scales linearTF rotation
-  persistent lastSize arrXopt arrScales arrExpo rseed 
-
-  funcID = 111; 
-  rrseed = 8; 
-  
-  %----- CHECK INPUT -----
-  if ischar(x) % return Fopt Xopt or linearTF on string argument
-    flginputischar = 1;
-    strinput = x;
-    if nargin < 2 || isempty(DIM)
-      DIM = 2;
-    end
-    x = ones(DIM,1);  % setting all persistent variables
-  else
-    flginputischar = 0;
-  end
-  % from here on x is assumed a numeric variable
-  [DIM, POPSI] = size(x);  % dimension, pop-size (number of solution vectors)
-  if DIM == 1 
-    error('1-D input is not supported');
-  end
-  
-  %----- INITIALIZATION -----
-  if nargin > 2     % set seed depending on trial index
-    Fopt = [];      % clear previous settings for Fopt
-    lastSize = [];  % clear other previous settings
-    rseed = rrseed + 1e4 * ntrial; 
-  elseif isempty(rseed)
-    rseed = rrseed; 
-  end
-  if isempty(Fopt)
-    Fopt =1* min(1000, max(-1000, round(100*100*gauss(1,rseed)/gauss(1,rseed+1))/100));
-  end 
-  Fadd = Fopt;  % value to be added on the "raw" function value
-  % DIM-dependent initialization
-  if isempty(lastSize) || lastSize.DIM ~= DIM  
-    Xopt =1* 0.75 * computeXopt(rseed, DIM); 
-    scales = max(1, sqrt(DIM) / 8.); 
-  end
-  % DIM- and POPSI-dependent initializations of DIMxPOPSI matrices
-  if isempty(lastSize) || lastSize.DIM ~= DIM || lastSize.POPSI ~= POPSI
-    lastSize.POPSI = POPSI; 
-    lastSize.DIM = DIM; 
-    arrXopt = repmat(Xopt, 1, POPSI); 
-  end
-
-  %----- BOUNDARY HANDLING -----
-  xoutside = max(0, abs(x) - 5) .* sign(x); 
-  Fpen = 100 * sum(xoutside.^2, 1);  % penalty
-  Fadd = Fadd + Fpen; 
-
-  %----- TRANSFORMATION IN SEARCH SPACE -----
-  x = x - arrXopt;  % shift optimum to zero 
-  x = scales * x;  % rotate/scale while assuming that Xopt==0 
-  x = x + 1;  % shift zero to factual optimum 1
-
-  %----- COMPUTATION core -----
-  Ftrue = 1e2 * sum((x(1:end-1, :).^2 - x(2:end, :)).^2, 1) ...
-          + sum((x(1:end-1, :) - 1).^2, 1);
-
-  %----- NOISE -----
-  Fval = FUniform(Ftrue, 0.49 + 1/DIM, 1); 
-
-  %----- FINALIZE -----
-  Ftrue = Ftrue + Fadd;
-  Fval = Fval + Fadd;
-
-  %----- RETURN INFO ----- 
-  if flginputischar  
-    if strcmpi(strinput, 'xopt')
-      Fval = Fopt;
-      Ftrue = Xopt;
-    elseif strcmpi(strinput, 'linearTF')
-      Fval = Fopt;
-      Ftrue = {};
-      Ftrue{1} = linearTF; 
-      Ftrue{2} = rotation; 
-    else  % if strcmpi(strinput, 'info')
-      Ftrue = [];  % benchmarkinfos(funcID); 
-      Fval = Fopt;
-    end
-  end
-
-end % function
-
-%%%-------------------------------------------------------------%%%
-function [Fval, Ftrue] = f112(x, DIM, ntrial)
-% Rosenbrock non-rotated with Cauchy noise
-% last change: 09/01/03
-  persistent Fopt Xopt scales linearTF rotation
-  persistent lastSize arrXopt arrScales arrExpo rseed 
-
-  funcID = 112; 
-  rrseed = 8; 
-  
-  %----- CHECK INPUT -----
-  if ischar(x) % return Fopt Xopt or linearTF on string argument
-    flginputischar = 1;
-    strinput = x;
-    if nargin < 2 || isempty(DIM)
-      DIM = 2;
-    end
-    x = ones(DIM,1);  % setting all persistent variables
-  else
-    flginputischar = 0;
-  end
-  % from here on x is assumed a numeric variable
-  [DIM, POPSI] = size(x);  % dimension, pop-size (number of solution vectors)
-  if DIM == 1 
-    error('1-D input is not supported');
-  end
-  
-  %----- INITIALIZATION -----
-  if nargin > 2     % set seed depending on trial index
-    Fopt = [];      % clear previous settings for Fopt
-    lastSize = [];  % clear other previous settings
-    rseed = rrseed + 1e4 * ntrial; 
-  elseif isempty(rseed)
-    rseed = rrseed; 
-  end
-  if isempty(Fopt)
-    Fopt =1* min(1000, max(-1000, round(100*100*gauss(1,rseed)/gauss(1,rseed+1))/100));
-  end 
-  Fadd = Fopt;  % value to be added on the "raw" function value
-  % DIM-dependent initialization
-  if isempty(lastSize) || lastSize.DIM ~= DIM  
-    Xopt =1* 0.75 * computeXopt(rseed, DIM); 
-    scales = max(1, sqrt(DIM) / 8.); 
-  end
-  % DIM- and POPSI-dependent initializations of DIMxPOPSI matrices
-  if isempty(lastSize) || lastSize.DIM ~= DIM || lastSize.POPSI ~= POPSI
-    lastSize.POPSI = POPSI; 
-    lastSize.DIM = DIM; 
-    arrXopt = repmat(Xopt, 1, POPSI); 
-  end
-
-  %----- BOUNDARY HANDLING -----
-  xoutside = max(0, abs(x) - 5) .* sign(x); 
-  Fpen = 100 * sum(xoutside.^2, 1);  % penalty
-  Fadd = Fadd + Fpen; 
-
-  %----- TRANSFORMATION IN SEARCH SPACE -----
-  x = x - arrXopt;  % shift optimum to zero 
-  x = scales * x;  % rotate/scale while assuming that Xopt==0 
-  x = x + 1;  % shift zero to factual optimum 1
-
-  %----- COMPUTATION core -----
-  Ftrue = 1e2 * sum((x(1:end-1, :).^2 - x(2:end, :)).^2, 1) ...
-          + sum((x(1:end-1, :) - 1).^2, 1);
-
-  %----- NOISE -----
-  Fval = FCauchy(Ftrue, 1, 0.2); 
-
-  %----- FINALIZE -----
-  Ftrue = Ftrue + Fadd;
-  Fval = Fval + Fadd;
-
-  %----- RETURN INFO ----- 
-  if flginputischar  
-    if strcmpi(strinput, 'xopt')
-      Fval = Fopt;
-      Ftrue = Xopt;
-    elseif strcmpi(strinput, 'linearTF')
-      Fval = Fopt;
-      Ftrue = {};
-      Ftrue{1} = linearTF; 
-      Ftrue{2} = rotation; 
-    else  % if strcmpi(strinput, 'info')
-      Ftrue = [];  % benchmarkinfos(funcID); 
-      Fval = Fopt;
-    end
-  end
-
-end % function
-
 %%%-------------------------------------------------------------%%%
 function [Fval, Ftrue] = f113(x, DIM, ntrial)
-% step-ellipsoid with gauss noise, condition 100
+% sphere with moderate uniform noise
 % last change: 09/01/03
   persistent Fopt Xopt scales linearTF rotation
   persistent lastSize arrXopt arrScales arrExpo rseed
 
   funcID = 113; 
-  condition = 100; 
-  alpha = 10;  % inner rounding procedure
-  rrseed = 7; 
+  rrseed = 1; 
   
   %----- CHECK INPUT -----
   if ischar(x) % return Fopt Xopt or linearTF on string argument
@@ -1216,15 +1183,12 @@ function [Fval, Ftrue] = f113(x, DIM, ntrial)
     rseed = rrseed; 
   end
   if isempty(Fopt)
-    Fopt =1* min(1000, max(-1000, (round(100*100*gauss(1,rseed)/gauss(1,rseed+1))/100)));
+    Fopt =1* min(1000, max(-1000, round(100*100*gauss(1,rseed)/gauss(1,rseed+1))/100));
   end 
   Fadd = Fopt;  % value to be added on the "raw" function value
   % DIM-dependent initialization
   if isempty(lastSize) || lastSize.DIM ~= DIM  
     Xopt =1* computeXopt(rseed, DIM); % function ID is seed for rotation 
-    rotation = computeRotation(rseed+1e6, DIM); 
-    scales = condition.^linspace(0, 1, DIM)'; 
-    linearTF = diag(sqrt(condition/10).^linspace(0, 1, DIM)) * computeRotation(rseed, DIM); 
   end
   % DIM- and POPSI-dependent initializations of DIMxPOPSI matrices
   if isempty(lastSize) || lastSize.DIM ~= DIM || lastSize.POPSI ~= POPSI
@@ -1240,18 +1204,12 @@ function [Fval, Ftrue] = f113(x, DIM, ntrial)
 
   %----- TRANSFORMATION IN SEARCH SPACE -----
   x = x - arrXopt;  % shift optimum to zero 
-  x = linearTF * x;  % rotate while assuming that Xopt==0 
-  x1 = x(1,:);
-  idx = abs(x) > 0.5;
-  x(idx) = round(x(idx));
-  x(~idx) = round(alpha*x(~idx))/alpha; 
-  x = rotation * x;  % rotate while assuming that Xopt==0 
 
   %----- COMPUTATION core -----
-  Ftrue = 0.1 * max(1e-4*abs(x1), scales' * x.^2);
+  Ftrue = sum(x.^2, 1);
 
   %----- NOISE -----
-  Fval = FGauss(Ftrue, 1); 
+  Fval = FUniform(Ftrue, 0.5 * (0 + 1/DIM), 0.01); 
 
   %----- FINALIZE -----
   Ftrue = Ftrue + Fadd;
@@ -1277,15 +1235,13 @@ end % function
 
 %%%-------------------------------------------------------------%%%
 function [Fval, Ftrue] = f114(x, DIM, ntrial)
-% step-ellipsoid with uniform noise, condition 100
+% sphere with moderate uniform noise
 % last change: 09/01/03
   persistent Fopt Xopt scales linearTF rotation
   persistent lastSize arrXopt arrScales arrExpo rseed
 
   funcID = 114; 
-  condition = 100; 
-  alpha = 10;  % inner rounding procedure
-  rrseed = 7; 
+  rrseed = 1; 
   
   %----- CHECK INPUT -----
   if ischar(x) % return Fopt Xopt or linearTF on string argument
@@ -1313,15 +1269,12 @@ function [Fval, Ftrue] = f114(x, DIM, ntrial)
     rseed = rrseed; 
   end
   if isempty(Fopt)
-    Fopt =1* min(1000, max(-1000, (round(100*100*gauss(1,rseed)/gauss(1,rseed+1))/100)));
+    Fopt =1* min(1000, max(-1000, round(100*100*gauss(1,rseed)/gauss(1,rseed+1))/100));
   end 
   Fadd = Fopt;  % value to be added on the "raw" function value
   % DIM-dependent initialization
   if isempty(lastSize) || lastSize.DIM ~= DIM  
     Xopt =1* computeXopt(rseed, DIM); % function ID is seed for rotation 
-    rotation = computeRotation(rseed+1e6, DIM); 
-    scales = condition.^linspace(0, 1, DIM)'; 
-    linearTF = diag(sqrt(condition/10).^linspace(0, 1, DIM)) * computeRotation(rseed, DIM); 
   end
   % DIM- and POPSI-dependent initializations of DIMxPOPSI matrices
   if isempty(lastSize) || lastSize.DIM ~= DIM || lastSize.POPSI ~= POPSI
@@ -1337,18 +1290,12 @@ function [Fval, Ftrue] = f114(x, DIM, ntrial)
 
   %----- TRANSFORMATION IN SEARCH SPACE -----
   x = x - arrXopt;  % shift optimum to zero 
-  x = linearTF * x;  % rotate while assuming that Xopt==0 
-  x1 = x(1,:);
-  idx = abs(x) > 0.5;
-  x(idx) = round(x(idx));
-  x(~idx) = round(alpha*x(~idx))/alpha; 
-  x = rotation * x;  % rotate while assuming that Xopt==0 
 
   %----- COMPUTATION core -----
-  Ftrue = 0.1 * max(1e-4*abs(x1), scales' * x.^2);
+  Ftrue = sum(x.^2, 1);
 
   %----- NOISE -----
-  Fval = FUniform(Ftrue, 0.49 + 1/DIM, 1); 
+  Fval = FUniform(Ftrue, 0.5 * (0 + 1/DIM), 0.01); 
 
   %----- FINALIZE -----
   Ftrue = Ftrue + Fadd;
@@ -1374,15 +1321,13 @@ end % function
 
 %%%-------------------------------------------------------------%%%
 function [Fval, Ftrue] = f115(x, DIM, ntrial)
-% step-ellipsoid with Cauchy noise, condition 100
+% sphere with moderate uniform noise
 % last change: 09/01/03
   persistent Fopt Xopt scales linearTF rotation
   persistent lastSize arrXopt arrScales arrExpo rseed
 
   funcID = 115; 
-  condition = 100; 
-  alpha = 10;  % inner rounding procedure
-  rrseed = 7; 
+  rrseed = 1; 
   
   %----- CHECK INPUT -----
   if ischar(x) % return Fopt Xopt or linearTF on string argument
@@ -1410,15 +1355,12 @@ function [Fval, Ftrue] = f115(x, DIM, ntrial)
     rseed = rrseed; 
   end
   if isempty(Fopt)
-    Fopt =1* min(1000, max(-1000, (round(100*100*gauss(1,rseed)/gauss(1,rseed+1))/100)));
+    Fopt =1* min(1000, max(-1000, round(100*100*gauss(1,rseed)/gauss(1,rseed+1))/100));
   end 
   Fadd = Fopt;  % value to be added on the "raw" function value
   % DIM-dependent initialization
   if isempty(lastSize) || lastSize.DIM ~= DIM  
     Xopt =1* computeXopt(rseed, DIM); % function ID is seed for rotation 
-    rotation = computeRotation(rseed+1e6, DIM); 
-    scales = condition.^linspace(0, 1, DIM)'; 
-    linearTF = diag(sqrt(condition/10).^linspace(0, 1, DIM)) * computeRotation(rseed, DIM); 
   end
   % DIM- and POPSI-dependent initializations of DIMxPOPSI matrices
   if isempty(lastSize) || lastSize.DIM ~= DIM || lastSize.POPSI ~= POPSI
@@ -1434,18 +1376,12 @@ function [Fval, Ftrue] = f115(x, DIM, ntrial)
 
   %----- TRANSFORMATION IN SEARCH SPACE -----
   x = x - arrXopt;  % shift optimum to zero 
-  x = linearTF * x;  % rotate while assuming that Xopt==0 
-  x1 = x(1,:);
-  idx = abs(x) > 0.5;
-  x(idx) = round(x(idx));
-  x(~idx) = round(alpha*x(~idx))/alpha; 
-  x = rotation * x;  % rotate while assuming that Xopt==0 
 
   %----- COMPUTATION core -----
-  Ftrue = 0.1 * max(1e-4*abs(x1), scales' * x.^2);
+  Ftrue = sum(x.^2, 1);
 
   %----- NOISE -----
-  Fval = FCauchy(Ftrue, 1, 0.2); 
+  Fval = FUniform(Ftrue, 0.5 * (0 + 1/DIM), 0.01); 
 
   %----- FINALIZE -----
   Ftrue = Ftrue + Fadd;
@@ -1468,17 +1404,15 @@ function [Fval, Ftrue] = f115(x, DIM, ntrial)
   end
 
 end % function
-
 %%%-------------------------------------------------------------%%%
 function [Fval, Ftrue] = f116(x, DIM, ntrial)
-% ellipsoid with Gauss noise, monotone x-transformation, condition 1e4
+% sphere with moderate uniform noise
 % last change: 09/01/03
   persistent Fopt Xopt scales linearTF rotation
   persistent lastSize arrXopt arrScales arrExpo rseed
 
   funcID = 116; 
-  condition = 1e4;  
-  rrseed = 10; 
+  rrseed = 1; 
   
   %----- CHECK INPUT -----
   if ischar(x) % return Fopt Xopt or linearTF on string argument
@@ -1506,14 +1440,12 @@ function [Fval, Ftrue] = f116(x, DIM, ntrial)
     rseed = rrseed; 
   end
   if isempty(Fopt)
-    Fopt =1* min(1000, max(-1000, (round(100*100*gauss(1,rseed)/gauss(1,rseed+1))/100)));
+    Fopt =1* min(1000, max(-1000, round(100*100*gauss(1,rseed)/gauss(1,rseed+1))/100));
   end 
   Fadd = Fopt;  % value to be added on the "raw" function value
   % DIM-dependent initialization
   if isempty(lastSize) || lastSize.DIM ~= DIM  
     Xopt =1* computeXopt(rseed, DIM); % function ID is seed for rotation 
-    rotation = computeRotation(rseed+1e6, DIM); 
-    scales = condition.^linspace(0, 1, DIM)'; 
   end
   % DIM- and POPSI-dependent initializations of DIMxPOPSI matrices
   if isempty(lastSize) || lastSize.DIM ~= DIM || lastSize.POPSI ~= POPSI
@@ -1529,14 +1461,12 @@ function [Fval, Ftrue] = f116(x, DIM, ntrial)
 
   %----- TRANSFORMATION IN SEARCH SPACE -----
   x = x - arrXopt;  % shift optimum to zero 
-  x = rotation * x;  % no scaling here, because it would go to the arrExpo
-  x = monotoneTFosc(x);
 
   %----- COMPUTATION core -----
-  Ftrue = scales' * x.^2; 
+  Ftrue = sum(x.^2, 1);
 
   %----- NOISE -----
-  Fval = FGauss(Ftrue, 1); 
+  Fval = FUniform(Ftrue, 0.5 * (0 + 1/DIM), 0.01); 
 
   %----- FINALIZE -----
   Ftrue = Ftrue + Fadd;
@@ -1561,14 +1491,13 @@ function [Fval, Ftrue] = f116(x, DIM, ntrial)
 end % function
 %%%-------------------------------------------------------------%%%
 function [Fval, Ftrue] = f117(x, DIM, ntrial)
-% ellipsoid with uniform noise, monotone x-transformation, condition 1e4
+% sphere with moderate uniform noise
 % last change: 09/01/03
   persistent Fopt Xopt scales linearTF rotation
   persistent lastSize arrXopt arrScales arrExpo rseed
 
   funcID = 117; 
-  condition = 1e4;  
-  rrseed = 10; 
+  rrseed = 1; 
   
   %----- CHECK INPUT -----
   if ischar(x) % return Fopt Xopt or linearTF on string argument
@@ -1596,14 +1525,12 @@ function [Fval, Ftrue] = f117(x, DIM, ntrial)
     rseed = rrseed; 
   end
   if isempty(Fopt)
-    Fopt =1* min(1000, max(-1000, (round(100*100*gauss(1,rseed)/gauss(1,rseed+1))/100)));
+    Fopt =1* min(1000, max(-1000, round(100*100*gauss(1,rseed)/gauss(1,rseed+1))/100));
   end 
   Fadd = Fopt;  % value to be added on the "raw" function value
   % DIM-dependent initialization
   if isempty(lastSize) || lastSize.DIM ~= DIM  
     Xopt =1* computeXopt(rseed, DIM); % function ID is seed for rotation 
-    rotation = computeRotation(rseed+1e6, DIM); 
-    scales = condition.^linspace(0, 1, DIM)'; 
   end
   % DIM- and POPSI-dependent initializations of DIMxPOPSI matrices
   if isempty(lastSize) || lastSize.DIM ~= DIM || lastSize.POPSI ~= POPSI
@@ -1619,15 +1546,12 @@ function [Fval, Ftrue] = f117(x, DIM, ntrial)
 
   %----- TRANSFORMATION IN SEARCH SPACE -----
   x = x - arrXopt;  % shift optimum to zero 
-  x = rotation * x;  % no scaling here, because it would go to the arrExpo
-  x = monotoneTFosc(x);
 
   %----- COMPUTATION core -----
-  Ftrue = scales' * x.^2; 
-  Fval = Ftrue;  % without noise
+  Ftrue = sum(x.^2, 1);
 
   %----- NOISE -----
-  Fval = FUniform(Ftrue, 0.49 + 1/DIM, 1); 
+  Fval = FUniform(Ftrue, 0.5 * (0 + 1/DIM), 0.01); 
 
   %----- FINALIZE -----
   Ftrue = Ftrue + Fadd;
@@ -3077,7 +3001,9 @@ end
 
 function Fval = FGauss(Ftrue, beta)
   POPSI = size(Ftrue, 2);
-  Fval = Ftrue .* exp(beta * randn(1, POPSI)); % with gauss noise
+  Fval = Ftrue .* exp(beta * randn(1, POPSI)); 
+  % with gauss noise
+  %Fval = Ftrue .* (beta * randn(1, POPSI))+Ftrue ;
   TOL = 1e-8; 
   Fval = Fval + 1.01*TOL; 
   idx = Ftrue < TOL;
